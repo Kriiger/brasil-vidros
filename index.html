@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Gerador de Orçamentos</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  
+  <section class="content">
+    <div class="content_top">
+      <img src="assets/img/Brasil vidros para fundo claro.png" alt="Logo Brasil Vidros" class="content_top_logo">
+      <h1 class="content_top_title">Gerador de Orçamentos</h1>
+    </div>
+    <div class="selectTipoOrcamento">
+      <button id="botaoNormal">Orçamento Normal</button>
+      <button id="botaoResumido">Orçamento Resumido</button>
+    </div>
+
+    <div class="" id="selectOrcamentoNormal" style="display:none;">
+      <div class="content_mid">
+        <form id="formCliente">
+          <h2 class="content_mid_title">Insira os dados do Cliente (Orçamento Normal)</h2>
+          <div>
+            <label for="nomeCliente">Nome*</label><br>
+            <input type="text" id="nomeCliente" required>
+          </div>
+          <div>
+            <label for="enderecoCliente">Endereço*</label><br>
+            <input type="text" id="enderecoCliente" required>
+          </div>
+          <div>
+            <label for="contatoCliente">Contato</label><br>
+            <input type="text" id="contatoCliente">
+          </div>
+          <button type="submit" class="Btn">Registrar Cliente</button>
+        </form>
+      </div>
+  
+      <div id="formItensContainer" style="display:none;">
+        <form id="formItens">
+          <h2 class="formItensContainer_titulo">Adicione os Itens do Orçamento (Orçamento Normal)</h2>
+          <div>
+            <label for="descricao">Descrição</label><br>
+            <input type="text" id="descricao" required>
+          </div>
+          <div>
+            <label for="medidas">Medidas</label><br>
+            <input type="text" id="medidas" required>
+          </div>
+          <div>
+            <label for="vidro">Tipo de Vidro</label><br>
+            <input type="text" id="vidro" required>
+          </div>
+          <div>
+            <label for="corAluminio">Cor do Alumínio</label><br>
+            <input type="text" id="corAluminio">
+          </div>
+          <div>
+            <label for="corFerragens">Cor das Ferragens</label><br>
+            <input type="text" id="corFerragens">
+          </div>
+          <div>
+            <label for="qtd">Quantidade</label><br>
+            <input type="number" id="qtd" required min="1" value="1">
+          </div>
+          <div>
+            <label for="preco">Preço Unitário</label><br>
+            <input type="number" id="preco" required min="0" step="0.01">
+          </div>
+          <div>
+            <label for="imagem">Imagem (URL ou Base64)</label><br>
+            <input type="text" id="imagem">
+          </div>
+          <button type="submit" class="BtnAdd">Adicionar Item</button>
+        </form>
+        <h3 class="formItensContainer_titulo_itens">Itens Adicionados</h3>
+        <ul id="listaItens"></ul>
+        <button id="gerarPDFBtn" class="Btn">Gerar PDF do Orçamento</button>
+      </div>
+    </div>
+
+    <div id="selectOrcamentoResumido" style="display:none;">
+  
+      <div class="content_mid">
+        <form id="formClienteResumido">
+          <h2 class="content_mid_title">Insira os dados do Cliente (Orçamento Resumido)</h2>
+          <div>
+            <label for="nomeClienteResumido">Nome*</label><br>
+            <input type="text" id="nomeClienteResumido" required>
+          </div>
+          <div>
+            <label for="enderecoClienteResumido">Endereço*</label><br>
+            <input type="text" id="enderecoClienteResumido" required>
+          </div>
+          <div>
+            <label for="contatoClienteResumido">Contato</label><br>
+            <input type="text" id="contatoClienteResumido">
+          </div>
+          <button type="submit" class="Btn">Registrar Cliente</button>
+        </form>
+      </div>
+  
+      <div id="formItensContainerResumido" style="display:none;">
+        <form id="formItensResumido">
+          <h2 class="formItensContainer_titulo">Adicione os Itens do Orçamento (Orçamento Resumido)</h2>
+          <div>
+            <label for="descricaoResumido">Descrição</label><br>
+            <input type="text" id="descricaoResumido" required>
+          </div>
+          <div>
+            <label for="medidasResumido">Medidas</label><br>
+            <input type="text" id="medidasResumido" required>
+          </div>
+          <div>
+            <label for="vidroResumido">Tipo de Vidro</label><br>
+            <input type="text" id="vidroResumido" required>
+          </div>
+          <div>
+            <label for="corAluminioResumido">Cor do Alumínio</label><br>
+            <input type="text" id="corAluminioResumido">
+          </div>
+          <div>
+            <label for="corFerragensResumido">Cor das Ferragens</label><br>
+            <input type="text" id="corFerragensResumido">
+          </div>
+          <div>
+            <label for="qtdResumido">Quantidade</label><br>
+            <input type="number" id="qtdResumido" required min="1" value="1">
+          </div>
+          <button type="submit" class="BtnAdd">Adicionar Item</button>
+        </form>
+        <h3 class="formItensContainer_titulo_itens">Itens Adicionados</h3>
+        <ul id="listaItensResumido"></ul>
+        <div class="div_valorTotal">
+          <label>Valor Total</label>
+          <input id="valorTotalResumido" required></input>
+        </div>
+        <button id="gerarPDFBtnResumido" class="Btn">Gerar PDF do Orçamento</button>
+      </div>
+    </div>
+  </section>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script type="module" src="orcamentoResumido.js"></script>
+  <script type="module" src="orcamentoNormal.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>
