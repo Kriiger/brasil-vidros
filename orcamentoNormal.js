@@ -21,7 +21,7 @@ formCliente.addEventListener('submit', function (e) {
     return;
   }
 
-  clienteResumido = { nome, endereco, contato };
+  cliente = { nome, endereco, contato };
   formCliente.style.display = 'none';
   formItensContainer.style.display = 'block';
 });
@@ -40,7 +40,7 @@ formItens.addEventListener('submit', function (e) {
     imagem: br
   };
 
-  itensResumido.push(item);
+  itens.push(item);
 
   // Atualiza lista visual
   const li = document.createElement('li');
@@ -52,7 +52,7 @@ formItens.addEventListener('submit', function (e) {
 
 // === BOTÃO GERAR PDF ===
 document.getElementById('gerarPDFBtn').addEventListener('click', function () {
-  if (itensResumido.length === 0) {
+  if (itens.length === 0) {
     alert('Adicione pelo menos um item antes de gerar o PDF.');
     return;
   }
@@ -65,7 +65,7 @@ document.getElementById('gerarPDFBtn').addEventListener('click', function () {
 function gerarPDF() {
   let total = 0;
 
-  const itensFormatados = itensResumido.map((item, i) => {
+  const itensFormatados = itens.map((item, i) => {
     let altura = 0;
     let largura = 0;
     const medidasInput = item.medidas.trim().toLowerCase();
@@ -160,17 +160,17 @@ function gerarPDF() {
     content: [
       {
         columns: [
-          { text: `${clienteResumido.nome}`, bold: true, style: 'nomeCliente' },
+          { text: `${cliente.nome}`, bold: true, style: 'nomeCliente' },
           { text: 'ORÇAMENTO', style: 'orcamentoCliente' },
         ]
       },
       {
         columns: [
-          { text: `Endereço: ${clienteResumido.endereco}`, fontSize: 11 },
+          { text: `Endereço: ${cliente.endereco}`, fontSize: 11 },
           { text: `Data: ${new Date().toLocaleDateString('pt-BR')}`, fontSize: 11, alignment: 'right' }
         ]
       },
-      { text: `Contato: ${clienteResumido.contato}`, margin: [0, 0, 0, 20], fontSize: 11 },
+      { text: `Contato: ${cliente.contato}`, margin: [0, 0, 0, 20], fontSize: 11 },
 
       // PRODUTOS com retângulo arredondado
       {
