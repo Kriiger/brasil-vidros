@@ -63,7 +63,7 @@ body {
 
 #nomeCliente, #enderecoCliente, #contatoCliente, #descricao, #medidas, #vidro, #corAluminio, #corFerragens, #qtd, #preco, #imagem,
 #nomeClienteResumido, #enderecoClienteResumido, #contatoClienteResumido, #descricaoResumido, #medidasResumido, #vidroResumido, #corAluminioResumido, #corFerragensResumido, #qtdResumido, #precoResumido, #imagemResumido,
-#valorTotalResumido {
+#valorTotalResumido, #desconto, #descontoValor {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -132,7 +132,7 @@ body {
     background: #0c0f11;
 }
 
-.div_valorTotal{
+.div_valorTotal, .div_desconto{
     width: 100%;
     display: flex;
     flex-direction: column;

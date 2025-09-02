@@ -63,22 +63,26 @@ document.getElementById('gerarPDFBtn').addEventListener('click', function () {
 // Função para gerar PDF
 // ======================================================
 function gerarPDF() {
+  // pega os descontos (garante número ou 0)
+  const descontoPorcentagem = parseFloat(document.getElementById('desconto')?.value) || 0;
+  const descontoValor = parseFloat(document.getElementById('descontoValor')?.value) || 0;
+
   let total = 0;
 
   const itensFormatados = itens.map((item, i) => {
-    let altura = 0;
-    let largura = 0;
-    const medidasInput = item.medidas.trim().toLowerCase();
-    const medidas = medidasInput.split('x').map(m => parseFloat(m.trim()));
+    // medidas "ALTURAxLARGURA" em mm (ex: "2000x2500")
+    const medidasInput = (item.medidas || '').trim().toLowerCase();
+    const partes = medidasInput.split('x').map(m => parseFloat(m.trim()));
+    let altura = 0, largura = 0;
 
-    if (medidas.length === 2) {
-      altura = medidas[0] / 1000;  // mm → metros
-      largura = medidas[1] / 1000; // mm → metros
+    if (partes.length === 2 && !isNaN(partes[0]) && !isNaN(partes[1])) {
+      // mm -> m
+      altura = partes[0] / 1000;
+      largura = partes[1] / 1000;
     }
 
-    const area = altura * largura;
-    console.log(medidas)
-    const subtotal = area * item.preco * item.qtd;
+    const area = altura * largura; // m²
+    const subtotal = +(area * item.preco * item.qtd).toFixed(2);
     total += subtotal;
 
     return {
@@ -88,7 +92,7 @@ function gerarPDF() {
           stack: [
             { text: `ITEM ${i + 1}`, style: 'itemHeader' },
             { text: item.descricao, bold: true },
-            `Medidas: ${item.medidas} - área total: ${area.toFixed(2)} m²`,
+            `Medidas: ${item.medidas} - área total: ${isNaN(area) ? '—' : area.toFixed(2)} m²`,
             `Vidro: ${item.vidro}`,
             `Cor do Alumínio: ${item.corAluminio}`,
             `Cor das Ferragens: ${item.corFerragens}`,
@@ -110,6 +114,65 @@ function gerarPDF() {
     };
   });
 
+  // calcula desconto UMA VEZ, fora do loop
+  const temDesconto = descontoValor > 0 || descontoPorcentagem > 0;
+  let totalComDesconto = total;
+
+  if (descontoValor > 0) {
+    totalComDesconto = Math.max(total - descontoValor, 0);
+  } else if (descontoPorcentagem > 0) {
+    totalComDesconto = total * (1 - descontoPorcentagem / 100);
+  }
+  totalComDesconto = +totalComDesconto.toFixed(2);
+
+  // monta content dinamicamente
+  const content = [
+    {
+      columns: [
+        { text: `${cliente.nome}`, bold: true, style: 'nomeCliente' },
+        { text: 'ORÇAMENTO', style: 'orcamentoCliente' },
+      ]
+    },
+    {
+      columns: [
+        { text: `Endereço: ${cliente.endereco}`, fontSize: 11 },
+        { text: `Data: ${new Date().toLocaleDateString('pt-BR')}`, fontSize: 11, alignment: 'right' }
+      ]
+    },
+    { text: `Contato: ${cliente.contato}`, margin: [0, 0, 0, 20], fontSize: 11 },
+
+    // Título PRODUTOS
+    {
+      stack: [
+        {
+          canvas: [{ type: 'rect', x: 0, y: 0, w: 520, h: 30, r: 10, color: '#152d20' }]
+        },
+        { text: 'PRODUTOS', alignment: 'center', color: '#e5e1de', bold: true, fontSize: 16, margin: [0, -24, 0, 10] }
+      ],
+      margin: [0, 10, 0, 10]
+    },
+
+    // itens
+    ...itensFormatados.flat(),
+
+    // totais
+    { text: `VALOR TOTAL DO INVESTIMENTO: R$ ${total.toFixed(2)}`, style: 'total' },
+
+    // só mostra se tiver desconto
+    temDesconto
+      ? {
+          text:
+            `VALOR COM DESCONTO: R$ ${totalComDesconto.toFixed(2)} ` +
+            (descontoValor > 0
+              ? `(desconto de R$ ${descontoValor.toFixed(2)})`
+              : `(${descontoPorcentagem}% de desconto)`),
+          style: 'totalDesc'
+        }
+      : null,
+
+    { text: 'Observações: Valor com material e mão de obra.', margin: [0, 20, 0, 0] }
+  ].filter(Boolean);
+
   // ======================================================
   // Definição do PDF
   // ======================================================
@@ -117,13 +180,13 @@ function gerarPDF() {
     pageSize: 'A4',
     pageMargins: [40, 150, 40, 60],
 
-    background: function (currentPage, pageSize) {
+    background: function () {
       return {
-        image: br,   // usa a chave definida em images
-        width: 610,      // ajusta o tamanho
-        opacity: 0.1,    // deixa translúcido
+        image: br,
+        width: 610,
+        opacity: 0.1,
         alignment: 'center',
-        margin: [0, 80, 0, 0] // centraliza verticalmente
+        margin: [0, 80, 0, 0]
       };
     },
 
@@ -157,44 +220,12 @@ function gerarPDF() {
       };
     },
 
-    content: [
-      {
-        columns: [
-          { text: `${cliente.nome}`, bold: true, style: 'nomeCliente' },
-          { text: 'ORÇAMENTO', style: 'orcamentoCliente' },
-        ]
-      },
-      {
-        columns: [
-          { text: `Endereço: ${cliente.endereco}`, fontSize: 11 },
-          { text: `Data: ${new Date().toLocaleDateString('pt-BR')}`, fontSize: 11, alignment: 'right' }
-        ]
-      },
-      { text: `Contato: ${cliente.contato}`, margin: [0, 0, 0, 20], fontSize: 11 },
-
-      // PRODUTOS com retângulo arredondado
-      {
-        stack: [
-          {
-            canvas: [
-              { type: 'rect', x: 0, y: 0, w: 520, h: 30, r: 10, color: '#152d20' }
-            ]
-          },
-          { text: 'PRODUTOS', alignment: 'center', color: '#e5e1de', bold: true, fontSize: 16, margin: [0, -24, 0, 10] }
-        ],
-        margin: [0, 10, 0, 10]
-      },
-
-      // itens do orçamento
-      ...itensFormatados.flat(),
-
-      { text: `TOTAL: R$ ${total.toFixed(2)}`, style: 'total' },
-      { text: 'Observações: Valor com material e mão de obra.', margin: [0, 20, 0, 0] }
-    ],
+    content,
 
     styles: {
       itemHeader: { bold: true, margin: [0, 10, 0, 5] },
-      total: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 20, 0, 0] },
+      total: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 0, 0, 0] },
+      totalDesc: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 0, 0, 0] },
       nomeCliente: { bold: true, fontSize: 16, alignment: 'left', margin: [0, 50, 0, 10] },
       orcamentoCliente: { bold: true, fontSize: 16, alignment: 'right', margin: [0, 50, 0, 10] }
     },
