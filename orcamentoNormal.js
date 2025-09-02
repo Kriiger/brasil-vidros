@@ -32,6 +32,7 @@ formItens.addEventListener('submit', function (e) {
   const item = {
     descricao: document.getElementById('descricao').value.trim(),
     medidas: document.getElementById('medidas').value.trim(),
+    medidaSelect: document.getElementById('medidasSelect').value,
     vidro: document.getElementById('vidro').value.trim(),
     corAluminio: document.getElementById('corAluminio').value.trim(),
     corFerragens: document.getElementById('corFerragens').value.trim(),
@@ -41,6 +42,7 @@ formItens.addEventListener('submit', function (e) {
   };
 
   itens.push(item);
+  console.log(item.medidaSelect);
 
   // Atualiza lista visual
   const li = document.createElement('li');
@@ -74,16 +76,25 @@ function gerarPDF() {
     const medidasInput = (item.medidas || '').trim().toLowerCase();
     const partes = medidasInput.split('x').map(m => parseFloat(m.trim()));
     let altura = 0, largura = 0;
+    let area;
+    let subtotal;
 
     if (partes.length === 2 && !isNaN(partes[0]) && !isNaN(partes[1])) {
       // mm -> m
       altura = partes[0] / 1000;
       largura = partes[1] / 1000;
     }
-
-    const area = altura * largura; // m²
-    const subtotal = +(area * item.preco * item.qtd).toFixed(2);
-    total += subtotal;
+    
+    if(item.medidaSelect === 'nao') {
+      area = altura * largura; // m²
+      subtotal = +(area * item.preco * item.qtd).toFixed(2);
+      total += subtotal;
+    }else{
+      area = altura * largura; // m²ß
+      subtotal = +(item.preco * item.qtd).toFixed(2);
+      total += subtotal;
+    }
+    
 
     return {
       columns: [

@@ -46,9 +46,19 @@
             <label for="descricao">Descrição</label><br>
             <input type="text" id="descricao" required>
           </div>
-          <div>
-            <label for="medidas">Medidas</label><br>
-            <input type="text" id="medidas" required>
+          <div id="div_medidas">
+            <div>
+              <label for="medidas">Medidas</label><br>
+              <input type="text" id="medidas" required>
+            </div>
+            <div>
+              <label>Desconsiderar Medidas No Cálculo</label>
+              <select name="medidas" id="medidasSelect" required>
+                <option value="">-- Selecione --</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+              </select>
+            </div>
           </div>
           <div>
             <label for="vidro">Tipo de Vidro</label><br>
@@ -79,8 +89,10 @@
         <h3 class="formItensContainer_titulo_itens">Itens Adicionados</h3>
         <ul id="listaItens"></ul>
         <div class="div_desconto">
+          <h2 class="div_desconto_titulo">Desconto (em cima do valor total)</h2>
           <label>Desconto (em porcentagem %)</label>
           <input id="desconto" type="number" step="0.01"></input>
+          <br/>
           <label>Desconto (em valor $)</label>
           <input id="descontoValor" type="number" step="0.01" required></input>
         </div>
