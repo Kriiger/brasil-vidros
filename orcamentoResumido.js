@@ -66,6 +66,7 @@ function gerarPDF() {
   let total = document.getElementById('valorTotalResumido').value;
   const descontoPorcentagem = parseFloat(document.getElementById('descontoResumido')?.value) || 0;
   const descontoValor = parseFloat(document.getElementById('descontoValorResumido')?.value) || 0;
+  const observacoes = document.getElementById('observacoesResumido')?.value || 'Valor com material e mão de obra.';
 
   const temDesconto = descontoValor > 0 || descontoPorcentagem > 0;
   let totalComDesconto = total;
@@ -197,7 +198,7 @@ function gerarPDF() {
       // itens do orçamento
       ...itensFormatados.flat(),
 
-      { text: `VALOR TOTAL DO INVESTIMENTO: R$ ${total}`, style: 'total' },
+      { text: `VALOR TOTAL DO INVESTIMENTO: R$ ${total}.00`, style: 'total' },
 
       temDesconto
         ? {
@@ -210,7 +211,7 @@ function gerarPDF() {
         }
         : null,
 
-      { text: 'Observações: Valor com material e mão de obra.', margin: [0, 20, 0, 0] }
+      { text: `${observacoes}`, margin: [0, 20, 0, 0] }
     ].filter(Boolean), // remove nulls
 
     styles: {
