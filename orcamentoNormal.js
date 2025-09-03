@@ -90,7 +90,7 @@ function gerarPDF() {
       subtotal = +(area * item.preco * item.qtd).toFixed(2);
       total += subtotal;
     }else{
-      area = altura * largura; // m²ß
+      area = altura * largura; // m²
       subtotal = +(item.preco * item.qtd).toFixed(2);
       total += subtotal;
     }

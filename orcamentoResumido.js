@@ -63,7 +63,19 @@ document.getElementById('gerarPDFBtnResumido').addEventListener('click', functio
 // Função para gerar PDF
 // ======================================================
 function gerarPDF() {
-  let total = 0;
+  let total = document.getElementById('valorTotalResumido').value;
+  const descontoPorcentagem = parseFloat(document.getElementById('descontoResumido')?.value) || 0;
+  const descontoValor = parseFloat(document.getElementById('descontoValorResumido')?.value) || 0;
+
+  const temDesconto = descontoValor > 0 || descontoPorcentagem > 0;
+  let totalComDesconto = total;
+
+  if (descontoValor > 0) {
+    totalComDesconto = Math.max(total - descontoValor, 0);
+  } else if (descontoPorcentagem > 0) {
+    totalComDesconto = total * (1 - descontoPorcentagem / 100);
+  }
+  //totalComDesconto = +totalComDesconto.toFixed(2);
 
   const itensFormatados = itensResumido.map((item, i) => {
     let altura = 0;
@@ -77,8 +89,6 @@ function gerarPDF() {
     }
 
     const area = altura * largura;
-    console.log(medidas)
-    total = document.getElementById('valorTotalResumido').value;
 
     return {
       columns: [
@@ -106,6 +116,8 @@ function gerarPDF() {
       margin: [0, 0, 0, 20]
     };
   });
+
+
 
   // ======================================================
   // Definição do PDF
@@ -185,13 +197,26 @@ function gerarPDF() {
       // itens do orçamento
       ...itensFormatados.flat(),
 
-      { text: `TOTAL: R$ ${total}`, style: 'total' },
+      { text: `VALOR TOTAL DO INVESTIMENTO: R$ ${total}`, style: 'total' },
+
+      temDesconto
+        ? {
+          text:
+            `VALOR COM DESCONTO: R$ ${totalComDesconto.toFixed(2)} ` +
+            (descontoValor > 0
+              ? `(desconto de R$ ${descontoValor.toFixed(2)})`
+              : `(${descontoPorcentagem}% de desconto)`),
+          style: 'totalDesc'
+        }
+        : null,
+
       { text: 'Observações: Valor com material e mão de obra.', margin: [0, 20, 0, 0] }
-    ],
+    ].filter(Boolean), // remove nulls
 
     styles: {
       itemHeader: { bold: true, margin: [0, 10, 0, 5] },
-      total: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 20, 0, 0] },
+      total: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 0, 0, 0] },
+      totalDesc: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 0, 0, 0] },
       nomeCliente: { bold: true, fontSize: 16, alignment: 'left', margin: [0, 50, 0, 10] },
       orcamentoCliente: { bold: true, fontSize: 16, alignment: 'right', margin: [0, 50, 0, 10] }
     },
