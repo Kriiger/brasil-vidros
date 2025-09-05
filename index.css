@@ -15,7 +15,7 @@ body {
 }
 
 .content{
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     background: #f9f9f9;
@@ -61,13 +61,41 @@ body {
     padding: 20px;
 }
 
-#nomeCliente, #enderecoCliente, #contatoCliente, #descricao, #medidas, #vidro, #corAluminio, #corFerragens, #qtd, #preco, #imagem,
-#nomeClienteResumido, #enderecoClienteResumido, #contatoClienteResumido, #descricaoResumido, #medidasResumido, #vidroResumido, #corAluminioResumido, #corFerragensResumido, #qtdResumido, #precoResumido, #imagemResumido,
-#valorTotalResumido, #desconto, #descontoValor, #descontoResumido, #descontoValorResumido, #observacoesResumido {
+.inputsForm {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+.formItensResumido_div_medidas {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+
+}.formItensResumido_div_medidas div{
+    width: 100%;
+    gap: 20px;
+}
+
+.formItensResumido_div_vidro {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+
+}.formItensResumido_div_vidro div{
+    width: 100%;
+    gap: 20px;
+}
+
+.formItensResumido_div_outros{
+    display: flex;
+    width: 100%;
+    gap: 20px;
+
+}.formItensResumido_div_outros div{
+    width: 100%;
+    gap: 20px;
 }
 
 #div_medidas {
@@ -81,7 +109,7 @@ body {
     gap: 20px;
 }
 
-#medidasSelect{
+#medidasSelect, #vidroResumido{
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
