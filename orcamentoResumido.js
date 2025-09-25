@@ -22,7 +22,7 @@ formItensResumido.addEventListener('submit', function (e) {
   const tipoVidro = document.getElementById('vidroResumido').value;
   const corVidro = document.getElementById('corVidroResumido').value;
   const corAluminio = document.getElementById('corAluminioResumido').value;
-  //const corFerragens = document.getElementById('corFerragensResumido').value;
+  const valorUnitario = document.getElementById('valorUnitario').value;
   const qtd = parseInt(document.getElementById('qtdResumido').value);
 
   const item = {
@@ -34,7 +34,7 @@ formItensResumido.addEventListener('submit', function (e) {
     tipoVidro: tipoVidro,
     corVidro: corVidro,
     corAluminio: corAluminio,
-    //corFerragens: corFerragens,
+    valorUnitario: valorUnitario,
     qtd: qtd,
     imagem: br
   };
@@ -77,6 +77,7 @@ function atualizarListaItens() {
         ${item.alturaVao}X${item.larguraVao}mm - ${item.tipoVidro} - ${item.corVidro} - Qtd: ${item.qtd}
         ${item.transpasse > 0 ? `<br>Transpasse: ${item.transpasse}mm` : ''}
         ${item.espessuraVidro > 0 ? ` - Espessura: ${item.espessuraVidro}mm` : ''}
+        ${item.valorUnitario > 0 ? ` - Valor Unitário: ${item.valorUnitario}` : ''}
       </div>
       <div class="item-acoes">
         <button class="btn-editar" data-index="${index}">✏️ Editar</button>
@@ -107,7 +108,7 @@ function editarItem(index) {
     { id: 'transpassoResumido', valor: item.transpasse },
     { id: 'espessuraVidroResumido', valor: item.espessuraVidro },
     { id: 'corAluminioResumido', valor: item.corAluminio },
-    //{ id: 'corFerragensResumido', valor: item.corFerragens },
+    { id: 'valorUnitario', valor: item.valorUnitario },
     { id: 'qtdResumido', valor: item.qtd }
   ];
   
@@ -340,6 +341,7 @@ function limparFormulario() {
     document.getElementById('descontoValorResumido').value = '';
     document.getElementById('parcelamentoValorResumido').value = '1';
     document.getElementById('observacoesResumido').value = '';
+    document.getElementById('valorUnitario').value = '';
     
     // Cancela edição se estiver ativa
     if (itemEditandoIndex >= 0) {
@@ -696,6 +698,7 @@ function gerarPDF() {
   const descontoPorcentagem = parseFloat(document.getElementById('descontoResumido')?.value) || 0;
   const descontoValor = parseFloat(document.getElementById('descontoValorResumido')?.value) || 0;
   const parcela = parseFloat(document.getElementById('parcelamentoValorResumido').value) || 0;
+  const valorUnitario = parseFloat(document.getElementById('valorUnitario').value) || 0;
   const observacoes = document.getElementById('observacoesResumido')?.value || 'Valor com material e mão de obra.';
   let total = parseFloat(document.getElementById('valorTotalResumido').value);
   console.log(total)
@@ -725,7 +728,7 @@ function gerarPDF() {
               `Cor do Vidro: ${item.corVidro}`,
               item.espessuraVidro > 0 ? `Espessura do Vidro: ${item.espessuraVidro} mm` : null,
               `Cor do Alumínio: ${item.corAluminio}`,
-              //`Cor das Ferragens: ${item.corFerragens}`,
+              item.valorUnitario > 0 ? `Valor Unitário: ${parseFloat(item.valorUnitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : null,
               `Quantidade: ${item.qtd}`,
             ].filter(Boolean)
           },
