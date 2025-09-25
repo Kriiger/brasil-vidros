@@ -43,7 +43,7 @@ formItensResumido.addEventListener('submit', function (e) {
     // Editando item existente
     itensResumido[itemEditandoIndex] = item;
     itemEditandoIndex = -1;
-    
+
     // Muda o texto do botão de volta
     const submitBtn = formItensResumido.querySelector('button[type="submit"]');
     submitBtn.textContent = 'Adicionar Item';
@@ -55,10 +55,10 @@ formItensResumido.addEventListener('submit', function (e) {
   }
 
   console.log(itensResumido);
-  
+
   // Atualiza lista visual
   atualizarListaItens();
-  
+
   // Limpa o formulário
   formItensResumido.reset();
 });
@@ -66,11 +66,11 @@ formItensResumido.addEventListener('submit', function (e) {
 // Função para atualizar a lista visual dos itens
 function atualizarListaItens() {
   listaItensResumido.innerHTML = '';
-  
+
   itensResumido.forEach((item, index) => {
     const li = document.createElement('li');
     li.className = 'item-lista';
-    
+
     li.innerHTML = `
       <div class="item-info">
         <strong>${item.descricao}</strong><br>
@@ -83,14 +83,14 @@ function atualizarListaItens() {
         <button class="btn-excluir" data-index="${index}">🗑️ Excluir</button>
       </div>
     `;
-    
+
     // Adiciona event listeners para os botões
     const btnEditar = li.querySelector('.btn-editar');
     const btnExcluir = li.querySelector('.btn-excluir');
-    
+
     btnEditar.addEventListener('click', () => editarItem(index));
     btnExcluir.addEventListener('click', () => excluirItem(index));
-    
+
     listaItensResumido.appendChild(li);
   });
 }
@@ -98,7 +98,7 @@ function atualizarListaItens() {
 // Função para editar um item
 function editarItem(index) {
   const item = itensResumido[index];
-  
+
   // Preenche os campos input normais
   const campos = [
     { id: 'descricaoResumido', valor: item.descricao },
@@ -110,7 +110,7 @@ function editarItem(index) {
     //{ id: 'corFerragensResumido', valor: item.corFerragens },
     { id: 'qtdResumido', valor: item.qtd }
   ];
-  
+
   // Preenche campos normais
   campos.forEach(campo => {
     const elemento = document.getElementById(campo.id);
@@ -120,26 +120,26 @@ function editarItem(index) {
       console.warn(`Elemento não encontrado: ${campo.id}`);
     }
   });
-  
+
   // Preenche os selects separadamente
   const selectVidro = document.getElementById('vidroResumido');
   const selectCorVidro = document.getElementById('corVidroResumido');
-  
+
   if (selectVidro) {
     selectVidro.value = item.tipoVidro;
   } else {
     console.warn('Select vidroResumido não encontrado');
   }
-  
+
   if (selectCorVidro) {
     selectCorVidro.value = item.corVidro;
   } else {
     console.warn('Select corVidroResumido não encontrado');
   }
-  
+
   // Marca que estamos editando este item
   itemEditandoIndex = index;
-  
+
   // Muda o texto do botão
   const submitBtn = formItensResumido.querySelector('button[type="submit"]');
   if (submitBtn) {
@@ -147,7 +147,7 @@ function editarItem(index) {
     submitBtn.classList.remove('BtnAdd');
     submitBtn.classList.add('BtnEdit');
   }
-  
+
   // Rola a página para o formulário
   formItensResumido.scrollIntoView({ behavior: 'smooth' });
 }
@@ -155,11 +155,11 @@ function editarItem(index) {
 // Função para excluir um item
 function excluirItem(index) {
   const item = itensResumido[index];
-  
+
   if (confirm(`Tem certeza que deseja excluir o item "${item.descricao}"?`)) {
     itensResumido.splice(index, 1);
     atualizarListaItens();
-    
+
     // Se estava editando este item, cancela a edição
     if (itemEditandoIndex === index) {
       cancelarEdicao();
@@ -173,19 +173,19 @@ function excluirItem(index) {
 // Função para cancelar edição
 function cancelarEdicao() {
   itemEditandoIndex = -1;
-  
+
   const submitBtn = formItensResumido.querySelector('button[type="submit"]');
   submitBtn.textContent = 'Adicionar Item';
   submitBtn.classList.remove('BtnEdit');
   submitBtn.classList.add('BtnAdd');
-  
+
   formItensResumido.reset();
 }
 
 // Adiciona botão para cancelar edição (opcional)
 function adicionarBotaoCancelar() {
   const submitBtn = formItensResumido.querySelector('button[type="submit"]');
-  
+
   let cancelBtn = document.getElementById('btnCancelarEdicao');
   if (!cancelBtn) {
     cancelBtn = document.createElement('button');
@@ -195,10 +195,10 @@ function adicionarBotaoCancelar() {
     cancelBtn.className = 'BtnCancel';
     cancelBtn.style.display = 'none';
     cancelBtn.onclick = cancelarEdicao;
-    
+
     submitBtn.parentNode.insertBefore(cancelBtn, submitBtn.nextSibling);
   }
-  
+
   // Monitora mudanças no modo de edição
   const observer = new MutationObserver(() => {
     if (itemEditandoIndex >= 0) {
@@ -207,15 +207,15 @@ function adicionarBotaoCancelar() {
       cancelBtn.style.display = 'none';
     }
   });
-  
-  observer.observe(submitBtn, { 
-    attributes: true, 
-    attributeFilter: ['class'] 
+
+  observer.observe(submitBtn, {
+    attributes: true,
+    attributeFilter: ['class']
   });
 }
 
 // Inicializa o botão cancelar quando a página carregar
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   adicionarBotaoCancelar();
   criarBotoesImportacao();
 });
@@ -223,10 +223,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // Função para criar botões de importação
 function criarBotoesImportacao() {
   const container = document.getElementById('formItensContainerResumido');
-  
+
   // Verifica se os botões já existem
   if (document.getElementById('botoesImportacao')) return;
-  
+
   // Cria o container dos botões
   const botoesDiv = document.createElement('div');
   botoesDiv.id = 'botoesImportacao';
@@ -245,11 +245,11 @@ function criarBotoesImportacao() {
       <input type="file" id="inputArquivoBackup" accept=".json" style="display: none;">
     </div>
   `;
-  
+
   // Insere antes do botão de gerar PDF
   const btnGerarPDF = document.getElementById('gerarPDFBtnResumido');
   container.insertBefore(botoesDiv, btnGerarPDF);
-  
+
   // Adiciona event listeners
   document.getElementById('btnImportarOrcamento').addEventListener('click', mostrarModalImportacao);
   document.getElementById('btnLimparFormulario').addEventListener('click', limparFormulario);
@@ -264,17 +264,17 @@ function criarBotoesImportacao() {
 // Função para mostrar modal de importação
 function mostrarModalImportacao() {
   const orcamentos = listarOrcamentosSalvos();
-  
+
   if (orcamentos.length === 0) {
     alert('Nenhum orçamento salvo encontrado!');
     return;
   }
-  
+
   // Cria o modal
   const modal = document.createElement('div');
   modal.id = 'modalImportacao';
   modal.className = 'modal-overlay';
-  
+
   const listaOrcamentos = orcamentos.map(orc => {
     const dataFormatada = new Date(orc.dataGeracao).toLocaleString('pt-BR');
     return `
@@ -290,7 +290,7 @@ function mostrarModalImportacao() {
       </div>
     `;
   }).join('');
-  
+
   modal.innerHTML = `
     <div class="modal-content">
       <div class="modal-header">
@@ -304,11 +304,11 @@ function mostrarModalImportacao() {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
-  
+
   // Adiciona event listener para fechar clicando fora
-  modal.addEventListener('click', function(e) {
+  modal.addEventListener('click', function (e) {
     if (e.target === modal) fecharModal();
   });
 }
@@ -329,23 +329,23 @@ function limparFormulario() {
     document.getElementById('enderecoClienteResumido').value = '';
     document.getElementById('contatoClienteResumido').value = '';
     clienteResumido = null;
-    
+
     // Limpa itens
     itensResumido = [];
     atualizarListaItens();
-    
+
     // Limpa valores
     document.getElementById('valorTotalResumido').value = '';
     document.getElementById('descontoResumido').value = '';
     document.getElementById('descontoValorResumido').value = '';
     document.getElementById('parcelamentoValorResumido').value = '1';
     document.getElementById('observacoesResumido').value = '';
-    
+
     // Cancela edição se estiver ativa
     if (itemEditandoIndex >= 0) {
       cancelarEdicao();
     }
-    
+
     alert('Formulário limpo com sucesso!');
   }
 }
@@ -353,17 +353,17 @@ function limparFormulario() {
 // Função para mostrar orçamentos salvos (apenas visualização)
 function mostrarOrcamentosSalvos() {
   const orcamentos = listarOrcamentosSalvos();
-  
+
   if (orcamentos.length === 0) {
     alert('Nenhum orçamento salvo encontrado!');
     return;
   }
-  
+
   const resumo = orcamentos.map((orc, index) => {
     const data = new Date(orc.dataGeracao).toLocaleString('pt-BR');
     return `${index + 1}. ${orc.nomeOrcamento} (${data})`;
   }).join('\n');
-  
+
   alert(`Orçamentos salvos (${orcamentos.length}):\n\n${resumo}`);
 }
 
@@ -373,11 +373,11 @@ function excluirOrcamentoSalvo(orcamentoId) {
     let orcamentosSalvos = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
     orcamentosSalvos = orcamentosSalvos.filter(orc => orc.id !== orcamentoId);
     localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosSalvos));
-    
+
     // Atualiza o modal
     fecharModal();
     setTimeout(mostrarModalImportacao, 100);
-    
+
     alert('Orçamento excluído com sucesso!');
   }
 }
@@ -387,34 +387,34 @@ function excluirOrcamentoSalvo(orcamentoId) {
 // Função para criar backup automático antes de ações destrutivas
 function criarBackupAutomatico() {
   const orcamentos = listarOrcamentosSalvos();
-  
+
   if (orcamentos.length === 0) return null;
-  
+
   const backup = {
     versao: '1.0',
     dataBackup: new Date().toISOString(),
     orcamentos: orcamentos
   };
-  
+
   // Salva backup automático no localStorage (últimas 24h)
   localStorage.setItem('backup_automatico_24h', JSON.stringify(backup));
-  
+
   return backup;
 }
 
 // Função para restaurar backup automático
 function restaurarBackupAutomatico() {
   const backup = localStorage.getItem('backup_automatico_24h');
-  
+
   if (!backup) {
     alert('❌ Nenhum backup automático encontrado!');
     return;
   }
-  
+
   if (confirm('🔄 Deseja restaurar o backup automático das últimas 24 horas?')) {
     const dadosBackup = JSON.parse(backup);
     localStorage.setItem('orcamentosResumidos', JSON.stringify(dadosBackup.orcamentos));
-    
+
     alert(`✅ Backup automático restaurado!\n\n📊 ${dadosBackup.orcamentos.length} orçamento(s) restaurado(s)`);
   }
 }
@@ -422,64 +422,64 @@ function restaurarBackupAutomatico() {
 // Função para exportar backup
 function exportarBackup() {
   const orcamentos = listarOrcamentosSalvos();
-  
+
   if (orcamentos.length === 0) {
     alert('Não há orçamentos salvos para exportar!');
     return;
   }
-  
+
   const dadosBackup = {
     versao: '1.0',
     dataExportacao: new Date().toISOString(),
     totalOrcamentos: orcamentos.length,
     orcamentos: orcamentos
   };
-  
+
   // Cria o arquivo JSON
   const jsonString = JSON.stringify(dadosBackup, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
-  
+
   // Cria link para download
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `orcamentos-backup-${new Date().toISOString().split('T')[0]}.json`;
-  
+
   // Força o download
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  
+
   alert(`✅ Backup criado com sucesso!\n\n📁 Arquivo: ${a.download}\n📊 ${orcamentos.length} orçamento(s) exportado(s)\n\n💡 Salve este arquivo em local seguro para sincronizar com outros computadores.`);
 }
 
 // Função para importar backup
 function importarBackup(event) {
   const arquivo = event.target.files[0];
-  
+
   if (!arquivo) return;
-  
+
   if (!arquivo.name.endsWith('.json')) {
     alert('⚠️ Por favor, selecione um arquivo JSON válido!');
     return;
   }
-  
+
   const reader = new FileReader();
-  
-  reader.onload = function(e) {
+
+  reader.onload = function (e) {
     try {
       const dadosImportados = JSON.parse(e.target.result);
-      
+
       // Validação básica do arquivo
       if (!dadosImportados.versao || !dadosImportados.orcamentos || !Array.isArray(dadosImportados.orcamentos)) {
         throw new Error('Formato de arquivo inválido');
       }
-      
+
       // Mostra informações do backup
       const dataImportacao = new Date(dadosImportados.dataExportacao).toLocaleString('pt-BR');
       const totalImportados = dadosImportados.orcamentos.length;
-      
+
       const confirmacao = confirm(
         `📦 BACKUP ENCONTRADO\n\n` +
         `📅 Data do backup: ${dataImportacao}\n` +
@@ -488,7 +488,7 @@ function importarBackup(event) {
         `• OK = MESCLAR (adicionar aos existentes)\n` +
         `• Cancelar = SUBSTITUIR (apagar todos os existentes)`
       );
-      
+
       if (confirmacao) {
         // MESCLAR - adiciona aos existentes
         mesclarBackup(dadosImportados.orcamentos);
@@ -499,25 +499,25 @@ function importarBackup(event) {
           `Isso irá APAGAR TODOS os orçamentos salvos neste computador e substituir pelos do backup.\n\n` +
           `Tem certeza absoluta?`
         );
-        
+
         if (certeza) {
           // SUBSTITUIR - substitui todos
           substituirBackup(dadosImportados.orcamentos);
         }
       }
-      
+
     } catch (error) {
       console.error('Erro ao importar backup:', error);
       alert('❌ Erro ao importar o arquivo!\n\nVerifique se é um backup válido do sistema de orçamentos.');
     }
   };
-  
-  reader.onerror = function() {
+
+  reader.onerror = function () {
     alert('❌ Erro ao ler o arquivo. Tente novamente.');
   };
-  
+
   reader.readAsText(arquivo);
-  
+
   // Limpa o input para permitir reimportar o mesmo arquivo
   event.target.value = '';
 }
@@ -525,13 +525,13 @@ function importarBackup(event) {
 // Função para mesclar backup (adicionar aos existentes)
 function mesclarBackup(orcamentosImportados) {
   let orcamentosExistentes = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
-  
+
   // Cria um Set com IDs existentes para evitar duplicatas
   const idsExistentes = new Set(orcamentosExistentes.map(orc => orc.id));
-  
+
   let novosOrcamentos = 0;
   let duplicatasIgnoradas = 0;
-  
+
   orcamentosImportados.forEach(orcamento => {
     if (!idsExistentes.has(orcamento.id)) {
       // Adiciona novo orçamento
@@ -542,10 +542,10 @@ function mesclarBackup(orcamentosImportados) {
       duplicatasIgnoradas++;
     }
   });
-  
+
   // Salva os dados mesclados
   localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosExistentes));
-  
+
   alert(
     `✅ BACKUP MESCLADO COM SUCESSO!\n\n` +
     `➕ Novos orçamentos adicionados: ${novosOrcamentos}\n` +
@@ -558,7 +558,7 @@ function mesclarBackup(orcamentosImportados) {
 function substituirBackup(orcamentosImportados) {
   // Substitui completamente os dados
   localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosImportados));
-  
+
   alert(
     `✅ BACKUP IMPORTADO COM SUCESSO!\n\n` +
     `📊 Orçamentos importados: ${orcamentosImportados.length}\n\n` +
@@ -567,7 +567,7 @@ function substituirBackup(orcamentosImportados) {
 }
 
 // Torna as funções globais para uso nos event handlers inline
-window.selecionarOrcamento = function(id) {
+window.selecionarOrcamento = function (id) {
   // Visual feedback de seleção (opcional)
   console.log('Orçamento selecionado:', id);
 };
@@ -597,16 +597,16 @@ function salvarOrcamento(nomeOrcamento = null) {
 
   // Pega orçamentos existentes
   let orcamentosSalvos = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
-  
+
   // Adiciona o novo orçamento
   orcamentosSalvos.push(dadosOrcamento);
-  
+
   // Salva no localStorage
   localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosSalvos));
-  
+
   // Cria backup automático
   criarBackupAutomatico();
-  
+
   console.log('Orçamento salvo:', dadosOrcamento.nomeOrcamento);
   return dadosOrcamento.id;
 }
@@ -615,7 +615,7 @@ function salvarOrcamento(nomeOrcamento = null) {
 function carregarOrcamento(orcamentoId) {
   const orcamentosSalvos = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
   const orcamento = orcamentosSalvos.find(orc => orc.id === orcamentoId);
-  
+
   if (!orcamento) {
     alert('Orçamento não encontrado!');
     return;
@@ -665,7 +665,7 @@ document.getElementById('gerarPDFBtnResumido').addEventListener('click', functio
     alert('Adicione pelo menos um item antes de gerar o PDF.');
     return;
   }
-  
+
   // Se estiver no meio de uma edição, pergunta se quer salvar
   if (itemEditandoIndex >= 0) {
     if (confirm('Você tem alterações não salvas. Deseja salvar antes de gerar o PDF?')) {
@@ -675,18 +675,25 @@ document.getElementById('gerarPDFBtnResumido').addEventListener('click', functio
       cancelarEdicao();
     }
   }
-  
+
   // SALVA AUTOMATICAMENTE antes de gerar o PDF
   const nomeOrcamento = `${nome} - ${new Date().toLocaleDateString('pt-BR')}`;
   const orcamentoId = salvarOrcamento(nomeOrcamento);
-  
+
   gerarPDF();
-  
+
   // Mostra mensagem de sucesso
   setTimeout(() => {
     alert(`✅ PDF gerado e orçamento salvo como:\n"${nomeOrcamento}"\n\nVocê pode importá-lo depois pelo botão "Importar Orçamento".`);
   }, 500);
 });
+
+function arredondaFlex(valor, casas = 6) {
+  if (isNaN(valor)) return 0;
+  const fator = Math.pow(10, casas);
+  const arredondado = Math.round(valor * fator) / fator;
+  return parseFloat(arredondado.toString());
+}
 
 // ======================================================
 // Função para gerar PDF (mantida igual)
@@ -697,7 +704,10 @@ function gerarPDF() {
   const descontoValor = parseFloat(document.getElementById('descontoValorResumido')?.value) || 0;
   const parcela = parseFloat(document.getElementById('parcelamentoValorResumido').value) || 0;
   const observacoes = document.getElementById('observacoesResumido')?.value || 'Valor com material e mão de obra.';
+  const calcularUnitario = document.getElementById('calcularUnitario').value;
   let total = parseFloat(document.getElementById('valorTotalResumido').value);
+  let valoresArea = [];
+  let valorDoUnitario;
   console.log(total)
 
   const temDesconto = descontoValor > 0 || descontoPorcentagem > 0;
@@ -707,6 +717,20 @@ function gerarPDF() {
     totalComDesconto = Math.max(total - descontoValor, 0);
   } else if (descontoPorcentagem > 0) {
     totalComDesconto = total * (1 - descontoPorcentagem / 100);
+  }
+
+  if (calcularUnitario === 'sim') {
+    itensResumido.forEach(item => {
+      const area = (parseInt(item.alturaVao) / 1000) * ((parseInt(item.larguraVao) + parseInt(item.transpasse || 0)) / 1000);
+
+      const valor = arredondaFlex(area);
+
+      valoresArea.push(valor);
+    });
+
+    const somaAreas = valoresArea.reduce((acc, val) => acc + val, 0);
+    valorDoUnitario = total / somaAreas;
+    console.log(valorDoUnitario);
   }
 
   const itensFormatados = itensResumido.map((item, i) => ({
@@ -726,6 +750,12 @@ function gerarPDF() {
               item.espessuraVidro > 0 ? `Espessura do Vidro: ${item.espessuraVidro} mm` : null,
               `Cor do Alumínio: ${item.corAluminio}`,
               //`Cor das Ferragens: ${item.corFerragens}`,
+              valorDoUnitario > 0 ? (function () {
+                const area = (parseInt(item.alturaVao) / 1000) * ((parseInt(item.larguraVao) + parseInt(item.transpasse || 0)) / 1000);
+                const areaArredondada = arredondaFlex(area);
+                const valorTotal = areaArredondada * valorDoUnitario * item.qtd;
+                return `Valor Unitário: ${valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+              })() : null,
               `Quantidade: ${item.qtd}`,
             ].filter(Boolean)
           },

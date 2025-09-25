@@ -3,6 +3,7 @@ const br = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABDgAAAQ4CAMAAADbzpy9AA
 
 let clienteResumido = null;
 let itensResumido = [];
+let itemEditandoIndex = -1; // Para controlar qual item está sendo editado
 
 const formClienteResumido = document.getElementById('formClienteResumido');
 const formItensContainerResumido = document.getElementById('formItensContainerResumido');
@@ -13,7 +14,6 @@ const listaItensResumido = document.getElementById('listaItensResumido');
 formItensResumido.addEventListener('submit', function (e) {
   e.preventDefault();
 
-
   const descricao = document.getElementById('descricaoResumido').value;
   const alturaVao = document.getElementById('alturaResumido').value;
   const larguraVao = document.getElementById('larguraResumido').value;
@@ -22,10 +22,8 @@ formItensResumido.addEventListener('submit', function (e) {
   const tipoVidro = document.getElementById('vidroResumido').value;
   const corVidro = document.getElementById('corVidroResumido').value;
   const corAluminio = document.getElementById('corAluminioResumido').value;
-  const corFerragens = document.getElementById('corFerragensResumido').value;
+  //const corFerragens = document.getElementById('corFerragensResumido').value;
   const qtd = parseInt(document.getElementById('qtdResumido').value);
-
-
 
   const item = {
     descricao: descricao,
@@ -36,21 +34,620 @@ formItensResumido.addEventListener('submit', function (e) {
     tipoVidro: tipoVidro,
     corVidro: corVidro,
     corAluminio: corAluminio,
-    corFerragens: corFerragens,
+    //corFerragens: corFerragens,
     qtd: qtd,
     imagem: br
   };
 
-  itensResumido.push(item);
-  console.log(itensResumido)
+  if (itemEditandoIndex >= 0) {
+    // Editando item existente
+    itensResumido[itemEditandoIndex] = item;
+    itemEditandoIndex = -1;
+    
+    // Muda o texto do botão de volta
+    const submitBtn = formItensResumido.querySelector('button[type="submit"]');
+    submitBtn.textContent = 'Adicionar Item';
+    submitBtn.classList.remove('BtnEdit');
+    submitBtn.classList.add('BtnAdd');
+  } else {
+    // Adicionando novo item
+    itensResumido.push(item);
+  }
 
+  console.log(itensResumido);
+  
   // Atualiza lista visual
-  const li = document.createElement('li');
-  li.textContent = `${item.descricao} - ${item.alturaVao}X${item.larguraVao} - ${item.tipoVidro} - ${item.corVidro} - ${item.qtd}`;
-  listaItensResumido.appendChild(li);
-
-  // formItensResumido.reset();
+  atualizarListaItens();
+  
+  // Limpa o formulário
+  formItensResumido.reset();
 });
+
+// Função para atualizar a lista visual dos itens
+function atualizarListaItens() {
+  listaItensResumido.innerHTML = '';
+  
+  itensResumido.forEach((item, index) => {
+    const li = document.createElement('li');
+    li.className = 'item-lista';
+    
+    li.innerHTML = `
+      <div class="item-info">
+        <strong>${item.descricao}</strong><br>
+        ${item.alturaVao}X${item.larguraVao}mm - ${item.tipoVidro} - ${item.corVidro} - Qtd: ${item.qtd}
+        ${item.transpasse > 0 ? `<br>Transpasse: ${item.transpasse}mm` : ''}
+        ${item.espessuraVidro > 0 ? ` - Espessura: ${item.espessuraVidro}mm` : ''}
+      </div>
+      <div class="item-acoes">
+        <button class="btn-editar" data-index="${index}">✏️ Editar</button>
+        <button class="btn-excluir" data-index="${index}">🗑️ Excluir</button>
+      </div>
+    `;
+    
+    // Adiciona event listeners para os botões
+    const btnEditar = li.querySelector('.btn-editar');
+    const btnExcluir = li.querySelector('.btn-excluir');
+    
+    btnEditar.addEventListener('click', () => editarItem(index));
+    btnExcluir.addEventListener('click', () => excluirItem(index));
+    
+    listaItensResumido.appendChild(li);
+  });
+}
+
+// Função para editar um item
+function editarItem(index) {
+  const item = itensResumido[index];
+  
+  // Preenche os campos input normais
+  const campos = [
+    { id: 'descricaoResumido', valor: item.descricao },
+    { id: 'alturaResumido', valor: item.alturaVao },
+    { id: 'larguraResumido', valor: item.larguraVao },
+    { id: 'transpassoResumido', valor: item.transpasse },
+    { id: 'espessuraVidroResumido', valor: item.espessuraVidro },
+    { id: 'corAluminioResumido', valor: item.corAluminio },
+    //{ id: 'corFerragensResumido', valor: item.corFerragens },
+    { id: 'qtdResumido', valor: item.qtd }
+  ];
+  
+  // Preenche campos normais
+  campos.forEach(campo => {
+    const elemento = document.getElementById(campo.id);
+    if (elemento) {
+      elemento.value = campo.valor;
+    } else {
+      console.warn(`Elemento não encontrado: ${campo.id}`);
+    }
+  });
+  
+  // Preenche os selects separadamente
+  const selectVidro = document.getElementById('vidroResumido');
+  const selectCorVidro = document.getElementById('corVidroResumido');
+  
+  if (selectVidro) {
+    selectVidro.value = item.tipoVidro;
+  } else {
+    console.warn('Select vidroResumido não encontrado');
+  }
+  
+  if (selectCorVidro) {
+    selectCorVidro.value = item.corVidro;
+  } else {
+    console.warn('Select corVidroResumido não encontrado');
+  }
+  
+  // Marca que estamos editando este item
+  itemEditandoIndex = index;
+  
+  // Muda o texto do botão
+  const submitBtn = formItensResumido.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.textContent = 'Salvar Alterações';
+    submitBtn.classList.remove('BtnAdd');
+    submitBtn.classList.add('BtnEdit');
+  }
+  
+  // Rola a página para o formulário
+  formItensResumido.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Função para excluir um item
+function excluirItem(index) {
+  const item = itensResumido[index];
+  
+  if (confirm(`Tem certeza que deseja excluir o item "${item.descricao}"?`)) {
+    itensResumido.splice(index, 1);
+    atualizarListaItens();
+    
+    // Se estava editando este item, cancela a edição
+    if (itemEditandoIndex === index) {
+      cancelarEdicao();
+    } else if (itemEditandoIndex > index) {
+      // Ajusta o índice se estava editando um item posterior
+      itemEditandoIndex--;
+    }
+  }
+}
+
+// Função para cancelar edição
+function cancelarEdicao() {
+  itemEditandoIndex = -1;
+  
+  const submitBtn = formItensResumido.querySelector('button[type="submit"]');
+  submitBtn.textContent = 'Adicionar Item';
+  submitBtn.classList.remove('BtnEdit');
+  submitBtn.classList.add('BtnAdd');
+  
+  formItensResumido.reset();
+}
+
+// Adiciona botão para cancelar edição (opcional)
+function adicionarBotaoCancelar() {
+  const submitBtn = formItensResumido.querySelector('button[type="submit"]');
+  
+  let cancelBtn = document.getElementById('btnCancelarEdicao');
+  if (!cancelBtn) {
+    cancelBtn = document.createElement('button');
+    cancelBtn.id = 'btnCancelarEdicao';
+    cancelBtn.type = 'button';
+    cancelBtn.textContent = 'Cancelar Edição';
+    cancelBtn.className = 'BtnCancel';
+    cancelBtn.style.display = 'none';
+    cancelBtn.onclick = cancelarEdicao;
+    
+    submitBtn.parentNode.insertBefore(cancelBtn, submitBtn.nextSibling);
+  }
+  
+  // Monitora mudanças no modo de edição
+  const observer = new MutationObserver(() => {
+    if (itemEditandoIndex >= 0) {
+      cancelBtn.style.display = 'inline-block';
+    } else {
+      cancelBtn.style.display = 'none';
+    }
+  });
+  
+  observer.observe(submitBtn, { 
+    attributes: true, 
+    attributeFilter: ['class'] 
+  });
+}
+
+// Inicializa o botão cancelar quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+  adicionarBotaoCancelar();
+  criarBotoesImportacao();
+});
+
+// Função para criar botões de importação
+function criarBotoesImportacao() {
+  const container = document.getElementById('formItensContainerResumido');
+  
+  // Verifica se os botões já existem
+  if (document.getElementById('botoesImportacao')) return;
+  
+  // Cria o container dos botões
+  const botoesDiv = document.createElement('div');
+  botoesDiv.id = 'botoesImportacao';
+  botoesDiv.className = 'botoes-importacao';
+  botoesDiv.innerHTML = `
+    <h3>Gerenciar Orçamentos</h3>
+    <div class="botoes-container">
+      <button id="btnImportarOrcamento" class="BtnImport">📥 Carregar Orçamento</button>
+      <button id="btnLimparFormulario" class="BtnClear">🗑️ Limpar Tudo</button>
+      <button id="btnVerSalvos" class="BtnView">📋 Ver Salvos</button>
+    </div>
+    <div class="botoes-container" style="margin-top: 10px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+      <h4 style="width: 100%; margin: 0 0 10px 0; color: #6c757d;">Backup e Sincronização</h4>
+      <button id="btnExportarDados" class="BtnExport">💾 Exportar Backup</button>
+      <button id="btnImportarDados" class="BtnImportFile">📤 Importar Backup</button>
+      <input type="file" id="inputArquivoBackup" accept=".json" style="display: none;">
+    </div>
+  `;
+  
+  // Insere antes do botão de gerar PDF
+  const btnGerarPDF = document.getElementById('gerarPDFBtnResumido');
+  container.insertBefore(botoesDiv, btnGerarPDF);
+  
+  // Adiciona event listeners
+  document.getElementById('btnImportarOrcamento').addEventListener('click', mostrarModalImportacao);
+  document.getElementById('btnLimparFormulario').addEventListener('click', limparFormulario);
+  document.getElementById('btnVerSalvos').addEventListener('click', mostrarOrcamentosSalvos);
+  document.getElementById('btnExportarDados').addEventListener('click', exportarBackup);
+  document.getElementById('btnImportarDados').addEventListener('click', () => {
+    document.getElementById('inputArquivoBackup').click();
+  });
+  document.getElementById('inputArquivoBackup').addEventListener('change', importarBackup);
+}
+
+// Função para mostrar modal de importação
+function mostrarModalImportacao() {
+  const orcamentos = listarOrcamentosSalvos();
+  
+  if (orcamentos.length === 0) {
+    alert('Nenhum orçamento salvo encontrado!');
+    return;
+  }
+  
+  // Cria o modal
+  const modal = document.createElement('div');
+  modal.id = 'modalImportacao';
+  modal.className = 'modal-overlay';
+  
+  const listaOrcamentos = orcamentos.map(orc => {
+    const dataFormatada = new Date(orc.dataGeracao).toLocaleString('pt-BR');
+    return `
+      <div class="item-orcamento" onclick="selecionarOrcamento(${orc.id})">
+        <h4>${orc.nomeOrcamento}</h4>
+        <p><strong>Cliente:</strong> ${orc.cliente.nome}</p>
+        <p><strong>Data:</strong> ${dataFormatada}</p>
+        <p><strong>Itens:</strong> ${orc.itens.length} item(ns)</p>
+        <div class="acoes-orcamento">
+          <button class="btn-carregar" onclick="event.stopPropagation(); carregarOrcamento(${orc.id}); fecharModal();">Carregar</button>
+          <button class="btn-excluir-salvo" onclick="event.stopPropagation(); excluirOrcamentoSalvo(${orc.id});">Excluir</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Selecione um Orçamento para Importar</h3>
+        <button class="modal-close" onclick="fecharModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="lista-orcamentos">
+          ${listaOrcamentos}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Adiciona event listener para fechar clicando fora
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) fecharModal();
+  });
+}
+
+// Função para fechar modal
+function fecharModal() {
+  const modal = document.getElementById('modalImportacao');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Função para limpar formulário
+function limparFormulario() {
+  if (confirm('Tem certeza que deseja limpar todos os dados do formulário?')) {
+    // Limpa dados do cliente
+    document.getElementById('nomeClienteResumido').value = '';
+    document.getElementById('enderecoClienteResumido').value = '';
+    document.getElementById('contatoClienteResumido').value = '';
+    clienteResumido = null;
+    
+    // Limpa itens
+    itensResumido = [];
+    atualizarListaItens();
+    
+    // Limpa valores
+    document.getElementById('valorTotalResumido').value = '';
+    document.getElementById('descontoResumido').value = '';
+    document.getElementById('descontoValorResumido').value = '';
+    document.getElementById('parcelamentoValorResumido').value = '1';
+    document.getElementById('observacoesResumido').value = '';
+    
+    // Cancela edição se estiver ativa
+    if (itemEditandoIndex >= 0) {
+      cancelarEdicao();
+    }
+    
+    alert('Formulário limpo com sucesso!');
+  }
+}
+
+// Função para mostrar orçamentos salvos (apenas visualização)
+function mostrarOrcamentosSalvos() {
+  const orcamentos = listarOrcamentosSalvos();
+  
+  if (orcamentos.length === 0) {
+    alert('Nenhum orçamento salvo encontrado!');
+    return;
+  }
+  
+  const resumo = orcamentos.map((orc, index) => {
+    const data = new Date(orc.dataGeracao).toLocaleString('pt-BR');
+    return `${index + 1}. ${orc.nomeOrcamento} (${data})`;
+  }).join('\n');
+  
+  alert(`Orçamentos salvos (${orcamentos.length}):\n\n${resumo}`);
+}
+
+// Função para excluir orçamento salvo
+function excluirOrcamentoSalvo(orcamentoId) {
+  if (confirm('Tem certeza que deseja excluir este orçamento salvo?')) {
+    let orcamentosSalvos = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
+    orcamentosSalvos = orcamentosSalvos.filter(orc => orc.id !== orcamentoId);
+    localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosSalvos));
+    
+    // Atualiza o modal
+    fecharModal();
+    setTimeout(mostrarModalImportacao, 100);
+    
+    alert('Orçamento excluído com sucesso!');
+  }
+}
+
+// === FUNCIONALIDADES DE BACKUP E SINCRONIZAÇÃO ===
+
+// Função para criar backup automático antes de ações destrutivas
+function criarBackupAutomatico() {
+  const orcamentos = listarOrcamentosSalvos();
+  
+  if (orcamentos.length === 0) return null;
+  
+  const backup = {
+    versao: '1.0',
+    dataBackup: new Date().toISOString(),
+    orcamentos: orcamentos
+  };
+  
+  // Salva backup automático no localStorage (últimas 24h)
+  localStorage.setItem('backup_automatico_24h', JSON.stringify(backup));
+  
+  return backup;
+}
+
+// Função para restaurar backup automático
+function restaurarBackupAutomatico() {
+  const backup = localStorage.getItem('backup_automatico_24h');
+  
+  if (!backup) {
+    alert('❌ Nenhum backup automático encontrado!');
+    return;
+  }
+  
+  if (confirm('🔄 Deseja restaurar o backup automático das últimas 24 horas?')) {
+    const dadosBackup = JSON.parse(backup);
+    localStorage.setItem('orcamentosResumidos', JSON.stringify(dadosBackup.orcamentos));
+    
+    alert(`✅ Backup automático restaurado!\n\n📊 ${dadosBackup.orcamentos.length} orçamento(s) restaurado(s)`);
+  }
+}
+
+// Função para exportar backup
+function exportarBackup() {
+  const orcamentos = listarOrcamentosSalvos();
+  
+  if (orcamentos.length === 0) {
+    alert('Não há orçamentos salvos para exportar!');
+    return;
+  }
+  
+  const dadosBackup = {
+    versao: '1.0',
+    dataExportacao: new Date().toISOString(),
+    totalOrcamentos: orcamentos.length,
+    orcamentos: orcamentos
+  };
+  
+  // Cria o arquivo JSON
+  const jsonString = JSON.stringify(dadosBackup, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  
+  // Cria link para download
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `orcamentos-backup-${new Date().toISOString().split('T')[0]}.json`;
+  
+  // Força o download
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  alert(`✅ Backup criado com sucesso!\n\n📁 Arquivo: ${a.download}\n📊 ${orcamentos.length} orçamento(s) exportado(s)\n\n💡 Salve este arquivo em local seguro para sincronizar com outros computadores.`);
+}
+
+// Função para importar backup
+function importarBackup(event) {
+  const arquivo = event.target.files[0];
+  
+  if (!arquivo) return;
+  
+  if (!arquivo.name.endsWith('.json')) {
+    alert('⚠️ Por favor, selecione um arquivo JSON válido!');
+    return;
+  }
+  
+  const reader = new FileReader();
+  
+  reader.onload = function(e) {
+    try {
+      const dadosImportados = JSON.parse(e.target.result);
+      
+      // Validação básica do arquivo
+      if (!dadosImportados.versao || !dadosImportados.orcamentos || !Array.isArray(dadosImportados.orcamentos)) {
+        throw new Error('Formato de arquivo inválido');
+      }
+      
+      // Mostra informações do backup
+      const dataImportacao = new Date(dadosImportados.dataExportacao).toLocaleString('pt-BR');
+      const totalImportados = dadosImportados.orcamentos.length;
+      
+      const confirmacao = confirm(
+        `📦 BACKUP ENCONTRADO\n\n` +
+        `📅 Data do backup: ${dataImportacao}\n` +
+        `📊 Orçamentos no backup: ${totalImportados}\n\n` +
+        `⚠️ ATENÇÃO: Como deseja proceder?\n\n` +
+        `• OK = MESCLAR (adicionar aos existentes)\n` +
+        `• Cancelar = SUBSTITUIR (apagar todos os existentes)`
+      );
+      
+      if (confirmacao) {
+        // MESCLAR - adiciona aos existentes
+        mesclarBackup(dadosImportados.orcamentos);
+      } else {
+        // Pergunta se tem certeza sobre substituir
+        const certeza = confirm(
+          `🚨 CONFIRME A SUBSTITUIÇÃO\n\n` +
+          `Isso irá APAGAR TODOS os orçamentos salvos neste computador e substituir pelos do backup.\n\n` +
+          `Tem certeza absoluta?`
+        );
+        
+        if (certeza) {
+          // SUBSTITUIR - substitui todos
+          substituirBackup(dadosImportados.orcamentos);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Erro ao importar backup:', error);
+      alert('❌ Erro ao importar o arquivo!\n\nVerifique se é um backup válido do sistema de orçamentos.');
+    }
+  };
+  
+  reader.onerror = function() {
+    alert('❌ Erro ao ler o arquivo. Tente novamente.');
+  };
+  
+  reader.readAsText(arquivo);
+  
+  // Limpa o input para permitir reimportar o mesmo arquivo
+  event.target.value = '';
+}
+
+// Função para mesclar backup (adicionar aos existentes)
+function mesclarBackup(orcamentosImportados) {
+  let orcamentosExistentes = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
+  
+  // Cria um Set com IDs existentes para evitar duplicatas
+  const idsExistentes = new Set(orcamentosExistentes.map(orc => orc.id));
+  
+  let novosOrcamentos = 0;
+  let duplicatasIgnoradas = 0;
+  
+  orcamentosImportados.forEach(orcamento => {
+    if (!idsExistentes.has(orcamento.id)) {
+      // Adiciona novo orçamento
+      orcamentosExistentes.push(orcamento);
+      novosOrcamentos++;
+    } else {
+      // Ignora duplicata
+      duplicatasIgnoradas++;
+    }
+  });
+  
+  // Salva os dados mesclados
+  localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosExistentes));
+  
+  alert(
+    `✅ BACKUP MESCLADO COM SUCESSO!\n\n` +
+    `➕ Novos orçamentos adicionados: ${novosOrcamentos}\n` +
+    `🔄 Duplicatas ignoradas: ${duplicatasIgnoradas}\n` +
+    `📊 Total de orçamentos agora: ${orcamentosExistentes.length}`
+  );
+}
+
+// Função para substituir backup (apagar tudo e importar)
+function substituirBackup(orcamentosImportados) {
+  // Substitui completamente os dados
+  localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosImportados));
+  
+  alert(
+    `✅ BACKUP IMPORTADO COM SUCESSO!\n\n` +
+    `📊 Orçamentos importados: ${orcamentosImportados.length}\n\n` +
+    `🔄 Todos os dados foram sincronizados com o backup.`
+  );
+}
+
+// Torna as funções globais para uso nos event handlers inline
+window.selecionarOrcamento = function(id) {
+  // Visual feedback de seleção (opcional)
+  console.log('Orçamento selecionado:', id);
+};
+window.carregarOrcamento = carregarOrcamento;
+window.fecharModal = fecharModal;
+window.excluirOrcamentoSalvo = excluirOrcamentoSalvo;
+window.restaurarBackupAutomatico = restaurarBackupAutomatico;
+
+// === FUNCIONALIDADES DE SALVAR/CARREGAR ===
+
+// Função para salvar orçamento
+function salvarOrcamento(nomeOrcamento = null) {
+  const dadosOrcamento = {
+    id: Date.now(), // ID único baseado no timestamp
+    nomeOrcamento: nomeOrcamento || `Orçamento ${new Date().toLocaleString('pt-BR')}`,
+    dataGeracao: new Date().toISOString(),
+    cliente: clienteResumido,
+    itens: itensResumido,
+    valores: {
+      valorTotal: document.getElementById('valorTotalResumido').value,
+      desconto: document.getElementById('descontoResumido').value,
+      descontoValor: document.getElementById('descontoValorResumido').value,
+      parcelas: document.getElementById('parcelamentoValorResumido').value,
+      observacoes: document.getElementById('observacoesResumido').value
+    }
+  };
+
+  // Pega orçamentos existentes
+  let orcamentosSalvos = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
+  
+  // Adiciona o novo orçamento
+  orcamentosSalvos.push(dadosOrcamento);
+  
+  // Salva no localStorage
+  localStorage.setItem('orcamentosResumidos', JSON.stringify(orcamentosSalvos));
+  
+  // Cria backup automático
+  criarBackupAutomatico();
+  
+  console.log('Orçamento salvo:', dadosOrcamento.nomeOrcamento);
+  return dadosOrcamento.id;
+}
+
+// Função para carregar orçamento
+function carregarOrcamento(orcamentoId) {
+  const orcamentosSalvos = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
+  const orcamento = orcamentosSalvos.find(orc => orc.id === orcamentoId);
+  
+  if (!orcamento) {
+    alert('Orçamento não encontrado!');
+    return;
+  }
+
+  // Carrega dados do cliente
+  document.getElementById('nomeClienteResumido').value = orcamento.cliente.nome;
+  document.getElementById('enderecoClienteResumido').value = orcamento.cliente.endereco;
+  document.getElementById('contatoClienteResumido').value = orcamento.cliente.contato || '';
+  clienteResumido = orcamento.cliente;
+
+  // Carrega itens
+  itensResumido = [...orcamento.itens]; // Copia o array
+  atualizarListaItens();
+
+  // Carrega valores
+  if (orcamento.valores) {
+    document.getElementById('valorTotalResumido').value = orcamento.valores.valorTotal || '';
+    document.getElementById('descontoResumido').value = orcamento.valores.desconto || '';
+    document.getElementById('descontoValorResumido').value = orcamento.valores.descontoValor || '';
+    document.getElementById('parcelamentoValorResumido').value = orcamento.valores.parcelas || '1';
+    document.getElementById('observacoesResumido').value = orcamento.valores.observacoes || '';
+  }
+
+  alert(`Orçamento "${orcamento.nomeOrcamento}" carregado com sucesso!`);
+}
+
+// Função para listar orçamentos salvos
+function listarOrcamentosSalvos() {
+  const orcamentosSalvos = JSON.parse(localStorage.getItem('orcamentosResumidos') || '[]');
+  return orcamentosSalvos.sort((a, b) => new Date(b.dataGeracao) - new Date(a.dataGeracao)); // Mais recentes primeiro
+}
 
 // === BOTÃO GERAR PDF ===
 document.getElementById('gerarPDFBtnResumido').addEventListener('click', function () {
@@ -68,11 +665,31 @@ document.getElementById('gerarPDFBtnResumido').addEventListener('click', functio
     alert('Adicione pelo menos um item antes de gerar o PDF.');
     return;
   }
+  
+  // Se estiver no meio de uma edição, pergunta se quer salvar
+  if (itemEditandoIndex >= 0) {
+    if (confirm('Você tem alterações não salvas. Deseja salvar antes de gerar o PDF?')) {
+      // Dispara o submit do formulário
+      formItensResumido.dispatchEvent(new Event('submit'));
+    } else {
+      cancelarEdicao();
+    }
+  }
+  
+  // SALVA AUTOMATICAMENTE antes de gerar o PDF
+  const nomeOrcamento = `${nome} - ${new Date().toLocaleDateString('pt-BR')}`;
+  const orcamentoId = salvarOrcamento(nomeOrcamento);
+  
   gerarPDF();
+  
+  // Mostra mensagem de sucesso
+  setTimeout(() => {
+    alert(`✅ PDF gerado e orçamento salvo como:\n"${nomeOrcamento}"\n\nVocê pode importá-lo depois pelo botão "Importar Orçamento".`);
+  }, 500);
 });
 
 // ======================================================
-// Função para gerar PDF
+// Função para gerar PDF (mantida igual)
 // ======================================================
 function gerarPDF() {
 
@@ -108,7 +725,7 @@ function gerarPDF() {
               `Cor do Vidro: ${item.corVidro}`,
               item.espessuraVidro > 0 ? `Espessura do Vidro: ${item.espessuraVidro} mm` : null,
               `Cor do Alumínio: ${item.corAluminio}`,
-              `Cor das Ferragens: ${item.corFerragens}`,
+              //`Cor das Ferragens: ${item.corFerragens}`,
               `Quantidade: ${item.qtd}`,
             ].filter(Boolean)
           },
@@ -275,3 +892,407 @@ function gerarPDF() {
 
   pdfMake.createPdf(docDefinition).download('orcamento.pdf');
 }
+
+// Adicione esta função ao seu arquivo orcamentoResumido.js
+
+// Função para calcular valores individuais baseado na área
+function calcularValoresIndividuais() {
+  const valorTotal = parseFloat(document.getElementById('valorTotalResumido').value);
+  
+  if (!valorTotal || valorTotal <= 0) {
+    alert('Digite um valor total válido antes de calcular os valores individuais!');
+    return null;
+  }
+  
+  if (itensResumido.length === 0) {
+    alert('Adicione pelo menos um item antes de calcular!');
+    return null;
+  }
+  
+  // Calcular área de cada item e área total
+  let areaTotal = 0;
+  const itensComArea = itensResumido.map(item => {
+    // Converter mm para metros e calcular área
+    const alturaM = parseFloat(item.alturaVao) / 1000;
+    const larguraM = parseFloat(item.larguraVao) / 1000;
+    const areaUnitaria = alturaM * larguraM;
+    const areaComQuantidade = areaUnitaria * parseInt(item.qtd);
+    
+    areaTotal += areaComQuantidade;
+    
+    return {
+      ...item,
+      areaUnitaria: areaUnitaria,
+      areaTotal: areaComQuantidade
+    };
+  });
+  
+  // Calcular preço por metro quadrado
+  const precoPorM2 = valorTotal / areaTotal;
+  
+  // Calcular valor individual de cada item
+  const itensComValor = itensComArea.map(item => ({
+    ...item,
+    valorUnitario: item.areaUnitaria * precoPorM2,
+    valorTotal: item.areaTotal * precoPorM2
+  }));
+  
+  return {
+    itens: itensComValor,
+    areaTotal: areaTotal,
+    precoPorM2: precoPorM2,
+    valorTotal: valorTotal
+  };
+}
+
+// Função para mostrar os valores calculados
+function mostrarValoresIndividuais() {
+  const calculo = calcularValoresIndividuais();
+  
+  if (!calculo) return;
+  
+  // Criar modal para mostrar os valores
+  const modal = document.createElement('div');
+  modal.id = 'modalValoresIndividuais';
+  modal.className = 'modal-overlay';
+  
+  const itensHTML = calculo.itens.map((item, index) => `
+    <div class="item-valor">
+      <h4>ITEM ${index + 1}: ${item.descricao}</h4>
+      <div class="detalhes-item">
+        <p><strong>Dimensões:</strong> ${item.alturaVao} × ${item.larguraVao} mm</p>
+        <p><strong>Área unitária:</strong> ${item.areaUnitaria.toFixed(4)} m²</p>
+        <p><strong>Quantidade:</strong> ${item.qtd}</p>
+        <p><strong>Área total:</strong> ${item.areaTotal.toFixed(4)} m²</p>
+        <p class="valor-unitario"><strong>Valor unitário:</strong> ${item.valorUnitario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+        <p class="valor-total-item"><strong>Valor total do item:</strong> ${item.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+      </div>
+    </div>
+  `).join('');
+  
+  modal.innerHTML = `
+    <div class="modal-content modal-valores">
+      <div class="modal-header">
+        <h3>Valores Individuais dos Itens</h3>
+        <button class="modal-close" onclick="fecharModalValores()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="resumo-calculo">
+          <h4>Resumo do Cálculo:</h4>
+          <p><strong>Área total:</strong> ${calculo.areaTotal.toFixed(4)} m²</p>
+          <p><strong>Valor total:</strong> ${calculo.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+          <p><strong>Preço por m²:</strong> ${calculo.precoPorM2.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}/m²</p>
+        </div>
+        
+        <div class="lista-valores">
+          ${itensHTML}
+        </div>
+        
+        <div class="acoes-modal">
+          <button class="btn-gerar-pdf-detalhado" onclick="gerarPDFDetalhado()">Gerar PDF com Valores</button>
+          <button class="btn-copiar-valores" onclick="copiarValores()">Copiar para Área de Transferência</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Event listener para fechar clicando fora
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) fecharModalValores();
+  });
+  
+  // Salvar cálculo globalmente para outras funções
+  window.ultimoCalculo = calculo;
+}
+
+// Função para fechar modal de valores
+function fecharModalValores() {
+  const modal = document.getElementById('modalValoresIndividuais');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Função para copiar valores para área de transferência
+function copiarValores() {
+  if (!window.ultimoCalculo) return;
+  
+  const calculo = window.ultimoCalculo;
+  let texto = `ORÇAMENTO DETALHADO - ${clienteResumido.nome}\n`;
+  texto += `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+  
+  texto += `RESUMO:\n`;
+  texto += `Área total: ${calculo.areaTotal.toFixed(4)} m²\n`;
+  texto += `Valor total: ${calculo.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n`;
+  texto += `Preço por m²: ${calculo.precoPorM2.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}/m²\n\n`;
+  
+  texto += `ITENS:\n`;
+  calculo.itens.forEach((item, index) => {
+    texto += `\nITEM ${index + 1}: ${item.descricao}\n`;
+    texto += `  Dimensões: ${item.alturaVao} × ${item.larguraVao} mm\n`;
+    texto += `  Área: ${item.areaUnitaria.toFixed(4)} m² × ${item.qtd} = ${item.areaTotal.toFixed(4)} m²\n`;
+    texto += `  Valor unitário: ${item.valorUnitario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n`;
+    texto += `  Valor total: ${item.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n`;
+  });
+  
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('Valores copiados para a área de transferência!');
+  }).catch(() => {
+    // Fallback para browsers mais antigos
+    const textarea = document.createElement('textarea');
+    textarea.value = texto;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('Valores copiados para a área de transferência!');
+  });
+}
+
+// Função para verificar se deve usar valores individuais
+function deveUsarValoresIndividuais() {
+  const checkbox = document.getElementById('usarValoresIndividuais');
+  return checkbox && checkbox.checked;
+}
+
+// Função para gerar PDF (modificada para suportar ambos os formatos)
+function gerarPDFComOpcao() {
+  if (deveUsarValoresIndividuais()) {
+    gerarPDFDetalhado();
+  } else {
+    gerarPDF(); // Função original
+  }
+}
+
+// Função para gerar PDF com valores detalhados
+function gerarPDFDetalhado() {
+  const calculo = calcularValoresIndividuais();
+  
+  calculo = window.ultimoCalculo || calcularValoresIndividuais();
+  
+  if (!calculo) {
+    alert('Erro: Não foi possível calcular os valores individuais!');
+    return;
+  }
+  
+  calculo = window.ultimoCalculo;
+  const descontoPorcentagem = parseFloat(document.getElementById('descontoResumido')?.value) || 0;
+  const descontoValor = parseFloat(document.getElementById('descontoValorResumido')?.value) || 0;
+  const parcela = parseFloat(document.getElementById('parcelamentoValorResumido').value) || 1;
+  const observacoes = document.getElementById('observacoesResumido')?.value || 'Valor com material e mão de obra.';
+  
+  const temDesconto = descontoValor > 0 || descontoPorcentagem > 0;
+  let totalComDesconto = calculo.valorTotal;
+
+  if (descontoValor > 0) {
+    totalComDesconto = Math.max(calculo.valorTotal - descontoValor, 0);
+  } else if (descontoPorcentagem > 0) {
+    totalComDesconto = calculo.valorTotal * (1 - descontoPorcentagem / 100);
+  }
+  
+  // Criar itens formatados com valores
+  const itensFormatados = calculo.itens.map((item, i) => ({
+    stack: [
+      {
+        columns: [
+          {
+            width: '*',
+            stack: [
+              { text: `ITEM ${i + 1}`, style: 'itemHeader' },
+              { text: item.descricao, bold: true },
+              `Altura X Largura: ${item.alturaVao} × ${item.larguraVao} mm`,
+              `Área: ${item.areaUnitaria.toFixed(4)} m² × ${item.qtd} = ${item.areaTotal.toFixed(4)} m²`,
+              item.transpasse > 0 ? `Transpasse Total: ${item.transpasse} mm` : null,
+              `Vidro: ${item.tipoVidro} ${item.corVidro}`,
+              item.espessuraVidro > 0 ? `Espessura: ${item.espessuraVidro} mm` : null,
+              `Cor do Alumínio: ${item.corAluminio}`,
+              { text: `Valor unitário: ${item.valorUnitario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, bold: true },
+              { text: `Valor total: ${item.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, bold: true, color: '#17cf77' }
+            ].filter(Boolean)
+          },
+          {
+            width: 100,
+            image: item.imagem,
+            fit: [100, 100],
+            alignment: 'right',
+            margin: [10, 0, 0, 0]
+          }
+        ],
+        columnGap: 10,
+        margin: [0, 0, 0, 20]
+      }
+    ],
+    unbreakable: true
+  }));
+  
+  // Definição do PDF (similar ao original, mas com valores detalhados)
+  const docDefinition = {
+    pageSize: 'A4',
+    pageMargins: [40, 200, 40, 40],
+    
+    background: function (currentPage, pageSize) {
+      return {
+        image: br,
+        width: 610,
+        opacity: 0.1,
+        alignment: 'center',
+        margin: [0, 80, 0, 0]
+      };
+    },
+    
+    header: {
+      margin: [120, 40, 120, 10],
+      columns: [
+        { image: 'logo', width: 120 },
+        {
+          stack: [
+            { text: 'Endereço: Rua Goiânia, 2215 - Nova Brasília, Ji-Paraná RO, 76908-672', margin: [0, 0, 0, 2] },
+            { text: 'CNPJ: 05.858.611/0001-99', margin: [0, 0, 0, 2] },
+            { text: 'E-mail: contatokriiger@gmail.com', margin: [0, 0, 0, 2] },
+            { text: 'Inácio: (69) 9 9956-7263', margin: [0, 0, 0, 2] },
+            { text: 'Wélliton: (69) 9 9373-1026' }
+          ],
+          relativePosition: { x: 0, y: 15 },
+          fontSize: 11,
+          alignment: 'left'
+        }
+      ],
+      columnGap: 50
+    },
+    
+    footer: function (currentPage, pageCount) {
+      return {
+        margin: [40, 0, 40, 0],
+        columns: [
+          { text: "", alignment: 'left', fontSize: 9 },
+          { text: currentPage.toString() + ' / ' + pageCount, alignment: 'right', fontSize: 9 }
+        ]
+      };
+    },
+    
+    content: [
+      {
+        columns: [
+          { text: `${clienteResumido.nome}`, bold: true, style: 'nomeCliente' },
+          { text: 'ORÇAMENTO DETALHADO', style: 'orcamentoCliente' },
+        ]
+      },
+      {
+        columns: [
+          { text: `Endereço: ${clienteResumido.endereco}`, fontSize: 11 },
+          { text: `Data: ${new Date().toLocaleDateString('pt-BR')}`, fontSize: 11, alignment: 'right' }
+        ]
+      },
+      { text: `Contato: ${clienteResumido.contato}`, margin: [0, 0, 0, 10], fontSize: 11 },
+      
+      // Resumo do cálculo
+      {
+        table: {
+          widths: ['*', '*', '*'],
+          body: [
+            [
+              { text: 'ÁREA TOTAL', style: 'tableHeader' },
+              { text: 'VALOR TOTAL', style: 'tableHeader' },
+              { text: 'PREÇO/M²', style: 'tableHeader' }
+            ],
+            [
+              { text: `${calculo.areaTotal.toFixed(4)} m²`, alignment: 'center' },
+              { text: calculo.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), alignment: 'center' },
+              { text: calculo.precoPorM2.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), alignment: 'center' }
+            ]
+          ]
+        },
+        margin: [0, 0, 0, 20]
+      },
+      
+      // PRODUTOS
+      {
+        stack: [
+          {
+            canvas: [
+              { type: 'rect', x: 0, y: 0, w: 520, h: 30, r: 10, color: '#152d20' }
+            ]
+          },
+          { text: 'PRODUTOS', alignment: 'center', color: '#e5e1de', bold: true, fontSize: 16, margin: [0, -24, 0, 10] }
+        ],
+        margin: [0, 5, 0, 10]
+      },
+      
+      ...itensFormatados.flat(),
+      
+      // Totais
+      parcela === 1
+        ? { text: `VALOR TOTAL DO INVESTIMENTO: ${calculo.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, style: 'total' }
+        : { text: `VALOR TOTAL: ${calculo.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} EM ATÉ ${parcela}X`, style: 'total' },
+      
+      temDesconto && parcela === 1
+        ? {
+          text:
+            `VALOR COM DESCONTO: ${totalComDesconto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} ` +
+            (descontoValor > 0
+              ? `(desconto de ${descontoValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})`
+              : `(${descontoPorcentagem}% de desconto)`),
+          style: 'totalDesc'
+        }
+        : null,
+      
+      temDesconto && parcela > 1
+        ? {
+          text:
+            `VALOR À VISTA: ${totalComDesconto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} ` +
+            (descontoValor > 0
+              ? `(desconto de ${descontoValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})`
+              : `(${descontoPorcentagem}% de desconto)`),
+          style: 'totalDesc'
+        }
+        : null,
+      
+      { text: `OBSERVAÇÕES: ${observacoes}`, margin: [0, 20, 0, 0] },
+      
+      // Assinaturas
+      {
+        columns: [
+          {
+            stack: [
+              { text: "____________________________________", margin: [0, 5, 0, 0], alignment: "center" },
+              { text: "Cliente", alignment: "center" }
+            ],
+            width: "50%"
+          },
+          {
+            stack: [
+              { text: "____________________________________", margin: [0, 5, 0, 0], alignment: "center" },
+              { text: "Brasil Vidros", alignment: "center" }
+            ],
+            width: "50%"
+          }
+        ],
+        margin: [0, 50, 0, 0]
+      }
+    ].filter(Boolean),
+    
+    styles: {
+      itemHeader: { bold: true, margin: [0, 10, 0, 5] },
+      total: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 0, 0, 0] },
+      totalDesc: { bold: true, fontSize: 14, alignment: 'right', margin: [0, 0, 0, 0] },
+      nomeCliente: { bold: true, fontSize: 16, alignment: 'left', margin: [0, 0, 0, 10] },
+      orcamentoCliente: { bold: true, fontSize: 16, alignment: 'right', margin: [0, 0, 0, 10] },
+      tableHeader: { bold: true, alignment: 'center', fillColor: '#f0f0f0' }
+    },
+    
+    images: {
+      logo: logo
+    }
+  };
+  
+  pdfMake.createPdf(docDefinition).download('orcamento-detalhado.pdf');
+  fecharModalValores();
+}
+
+// Torna as funções globais
+window.mostrarValoresIndividuais = mostrarValoresIndividuais;
+window.fecharModalValores = fecharModalValores;
+window.copiarValores = copiarValores;
+window.gerarPDFDetalhado = gerarPDFDetalhado;

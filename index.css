@@ -187,7 +187,10 @@ body {
 }
 
 .div_valorTotal{
+    display: flex;
     margin-bottom: 20px;
+    width: 100%;
+    gap: 20px;
 }
 
 .div_desconto_titulo{
