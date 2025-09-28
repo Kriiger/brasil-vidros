@@ -72,8 +72,9 @@ body {
     display: flex;
     width: 100%;
     gap: 20px;
+}
 
-}.formItensResumido_div_medidas div{
+.formItensResumido_div_medidas div{
     width: 100%;
     gap: 20px;
 }
@@ -82,8 +83,9 @@ body {
     display: flex;
     width: 100%;
     gap: 20px;
+}
 
-}.formItensResumido_div_vidro div{
+.formItensResumido_div_vidro div{
     width: 100%;
     gap: 20px;
 }
@@ -92,8 +94,9 @@ body {
     display: flex;
     width: 100%;
     gap: 20px;
+}
 
-}.formItensResumido_div_outros div{
+.formItensResumido_div_outros div{
     width: 100%;
     gap: 20px;
 }
@@ -194,4 +197,155 @@ body {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 10px;
+}
+
+/* Media Queries para dispositivos móveis */
+
+/* Tablets (768px e abaixo) */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+    
+    .content {
+        padding: 15px;
+        margin: 0 10px;
+    }
+    
+    .content_top {
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .content_top_logo {
+        width: 150px;
+    }
+    
+    .content_top_title {
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .selectTipoOrcamento {
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    #botaoNormal, #botaoResumido {
+        font-size: 18px;
+        padding: 15px;
+    }
+    
+    .formItensContainer_titulo_itens {
+        font-size: 20px;
+        margin-top: 20px;
+    }
+}
+
+/* Smartphones (480px e abaixo) */
+@media screen and (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .content {
+        padding: 10px;
+        margin: 0;
+        border-radius: 4px;
+    }
+    
+    .content_top {
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .content_top_logo {
+        width: 120px;
+    }
+    
+    .content_top_title {
+        font-size: 24px;
+    }
+    
+    #formCliente, #formItens, #formClienteResumido, #formItensResumido {
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    .inputsForm {
+        padding: 12px;
+        font-size: 16px; /* Evita zoom no iOS */
+    }
+    
+    #medidasSelect, #vidroResumido {
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    /* Divs com flex em coluna no mobile para melhor legibilidade */
+    .formItensResumido_div_medidas,
+    .formItensResumido_div_vidro,
+    .formItensResumido_div_outros,
+    #div_medidas {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .formItensResumido_div_medidas div,
+    .formItensResumido_div_vidro div,
+    .formItensResumido_div_outros div,
+    #div_medidas div {
+        width: 100%;
+    }
+    
+    .selectTipoOrcamento {
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    #botaoNormal, #botaoResumido {
+        font-size: 16px;
+        padding: 12px;
+    }
+    
+    .Btn, .BtnAdd {
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    .formItensContainer_titulo_itens {
+        font-size: 18px;
+        margin-top: 15px;
+    }
+    
+    .div_desconto_titulo {
+        font-size: 20px;
+    }
+}
+
+/* Smartphones muito pequenos (320px e abaixo) */
+@media screen and (max-width: 320px) {
+    .content_top_title {
+        font-size: 20px;
+    }
+    
+    .content_top_logo {
+        width: 100px;
+    }
+    
+    #botaoNormal, #botaoResumido {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .formItensContainer_titulo_itens {
+        font-size: 16px;
+    }
+    
+    .div_desconto_titulo {
+        font-size: 18px;
+    }
 }
