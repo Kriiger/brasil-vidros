@@ -8,6 +8,14 @@
     color: #152d20;
 }
 
+/* Força a responsividade */
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* Meta viewport deve estar no HTML: <meta name="viewport" content="width=device-width, initial-scale=1.0"> */
+
 body {
     padding: 50px;
     background: #ffffff;
@@ -199,7 +207,12 @@ body {
     margin-bottom: 10px;
 }
 
+/* IMPORTANTE: Adicione esta meta tag no HTML se não tiver:
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+*/
+
 /* Media Queries para dispositivos móveis */
+/* FORÇA a responsividade com !important onde necessário */
 
 /* Tablets (768px e abaixo) */
 @media screen and (max-width: 768px) {
@@ -248,41 +261,43 @@ body {
 /* Smartphones (480px e abaixo) */
 @media screen and (max-width: 480px) {
     body {
-        padding: 10px;
+        padding: 10px !important;
     }
     
     .content {
-        padding: 10px;
-        margin: 0;
+        padding: 10px !important;
+        margin: 0 !important;
         border-radius: 4px;
     }
     
     .content_top {
-        gap: 15px;
-        margin-bottom: 20px;
+        flex-direction: column !important;
+        gap: 15px !important;
+        margin-bottom: 20px !important;
     }
     
     .content_top_logo {
-        width: 120px;
+        width: 120px !important;
     }
     
     .content_top_title {
-        font-size: 24px;
+        font-size: 24px !important;
+        text-align: center !important;
     }
     
     #formCliente, #formItens, #formClienteResumido, #formItensResumido {
-        padding: 15px;
-        gap: 15px;
+        padding: 15px !important;
+        gap: 15px !important;
     }
     
     .inputsForm {
-        padding: 12px;
-        font-size: 16px; /* Evita zoom no iOS */
+        padding: 12px !important;
+        font-size: 16px !important; /* Evita zoom no iOS */
     }
     
     #medidasSelect, #vidroResumido {
-        padding: 12px;
-        font-size: 16px;
+        padding: 12px !important;
+        font-size: 16px !important;
     }
     
     /* Divs com flex em coluna no mobile para melhor legibilidade */
@@ -290,39 +305,41 @@ body {
     .formItensResumido_div_vidro,
     .formItensResumido_div_outros,
     #div_medidas {
-        flex-direction: column;
-        gap: 15px;
+        flex-direction: column !important;
+        gap: 15px !important;
     }
     
     .formItensResumido_div_medidas div,
     .formItensResumido_div_vidro div,
     .formItensResumido_div_outros div,
     #div_medidas div {
-        width: 100%;
+        width: 100% !important;
     }
     
     .selectTipoOrcamento {
-        gap: 15px;
-        margin-bottom: 20px;
+        flex-direction: column !important;
+        gap: 15px !important;
+        margin-bottom: 20px !important;
     }
     
     #botaoNormal, #botaoResumido {
-        font-size: 16px;
-        padding: 12px;
+        font-size: 16px !important;
+        padding: 12px !important;
+        width: 100% !important;
     }
     
     .Btn, .BtnAdd {
-        padding: 12px;
-        font-size: 16px;
+        padding: 12px !important;
+        font-size: 16px !important;
     }
     
     .formItensContainer_titulo_itens {
-        font-size: 18px;
-        margin-top: 15px;
+        font-size: 18px !important;
+        margin-top: 15px !important;
     }
     
     .div_desconto_titulo {
-        font-size: 20px;
+        font-size: 20px !important;
     }
 }
 
